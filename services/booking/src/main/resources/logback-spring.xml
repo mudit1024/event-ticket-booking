@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Structured JSON logs. The correlationId field comes from the MDC set by CorrelationIdFilter. -->
+<configuration>
+    <springProperty scope="context" name="serviceName" source="spring.application.name" defaultValue="booking"/>
+
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>false</includeContext>
+            <customFields>{"service":"${serviceName}"}</customFields>
+        </encoder>
+    </appender>
+
+    <logger name="com.eventticket" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="JSON"/>
+    </root>
+</configuration>

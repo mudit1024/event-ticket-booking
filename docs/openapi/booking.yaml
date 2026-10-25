@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: Booking Service API
+  version: 0.1.0
+  description: Workflow orchestration and booking lifecycle management for the Event Ticket Booking system.
+servers:
+  - url: http://localhost:8083
+paths:
+  /health:
+    get:
+      summary: Health and database check
+      responses:
+        '200':
+          description: Service and database are up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: UP }
+                  service: { type: string, example: booking }
+                  database: { type: string, example: UP }
+        '503':
+          description: Database unavailable
+  /api/v1/bookings:
+    post:
+      summary: Create and coordinate a booking
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema: { type: string, example: book-10000000-0000-0000-0000-000000000001-user1 }
+        - in: header
+          name: X-Correlation-Id
+          required: false
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking created and processed
+          headers:
+            Idempotent-Replay: { schema: { type: boolean, example: false } }
+            X-Correlation-Id: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BookingResponse' }
+        '200':
+          description: Replay of previous booking with identical key and payload
+          headers:
+            Idempotent-Replay: { schema: { type: boolean, example: true } }
+            X-Correlation-Id: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BookingResponse' }
+        '400':
+          description: Missing Idempotency-Key or validation error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+        '409':
+          description: Key reused with different payload or insufficient inventory
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+  /api/v1/bookings/{id}:
+    get:
+      summary: Get booking by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Booking found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BookingResponse' }
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+  /api/v1/bookings/{id}/compensate:
+    post:
+      summary: Explicitly repeat compensation release
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Compensation release triggered safely
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BookingResponse' }
+components:
+  schemas:
+    CreateBookingRequest:
+      type: object
+      required: [event_id, ticket_type_id, quantity]
+      properties:
+        event_id: { type: string, format: uuid }
+        ticket_type_id: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1, example: 1 }
+        customer_email: { type: string, format: email, example: alice@example.com }
+    BookingResponse:
+      type: object
+      required: [booking_id, event_id, ticket_type_id, quantity, customer_email, total_amount, currency, status, created_at, updated_at]
+      properties:
+        booking_id: { type: string, format: uuid }
+        event_id: { type: string, format: uuid }
+        ticket_type_id: { type: string, format: uuid }
+        quantity: { type: integer, example: 1 }
+        customer_email: { type: string, example: alice@example.com }
+        total_amount: { type: number, format: double, example: 500.00 }
+        currency: { type: string, example: INR }
+        status: { type: string, enum: [PENDING, CONFIRMED, FAILED], example: CONFIRMED }
+        reservation_id: { type: string }
+        payment_id: { type: string }
+        failure_reason: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ApiError:
+      type: object
+      required: [timestamp, status, error, code, message, path]
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer, example: 409 }
+        error: { type: string, example: Conflict }
+        code: { type: string, example: IDEMPOTENCY_KEY_REUSED }
+        message: { type: string }
+        path: { type: string }
+        correlation_id: { type: string }
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }

@@ -1,0 +1,37 @@
+# Every value can be overridden by an environment variable of the same name.
+# A local .env file in the service folder is also read (see .env.example).
+spring:
+  application:
+    name: booking
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/booking_db}
+    username: ${DB_USERNAME:booking_user}
+    password: ${DB_PASSWORD:booking_pass}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8083}
+
+booking:
+  # How long a duplicate request waits for an in-flight booking with the same key to finish.
+  in-progress-wait-ms: ${BOOKING_IN_PROGRESS_WAIT_MS:5000}
+  services:
+    catalog-url: ${CATALOG_BASE_URL:http://localhost:8081}
+    inventory-url: ${INVENTORY_BASE_URL:http://localhost:8082}
+    payment-url: ${PAYMENT_BASE_URL:http://localhost:8084}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
