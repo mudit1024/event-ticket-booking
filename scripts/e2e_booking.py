@@ -12,6 +12,7 @@ Usage:
   python scripts/e2e_booking.py
 """
 import argparse
+import sys
 import json
 import urllib.error
 import urllib.request
