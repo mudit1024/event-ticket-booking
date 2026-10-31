@@ -1,0 +1,30 @@
+name: payment-mock
+
+on:
+  push:
+    paths:
+      - "services/payment-mock/**"
+      - ".github/workflows/payment-mock.yml"
+  pull_request:
+    paths:
+      - "services/payment-mock/**"
+      - ".github/workflows/payment-mock.yml"
+
+defaults:
+  run:
+    working-directory: services/payment-mock
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Unit and web-layer tests
+        run: ./mvnw -B test
+      - name: Build Docker image
+        run: docker build -t payment-mock:ci .
