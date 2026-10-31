@@ -15,6 +15,13 @@ cp .env.example .env          # optional, defaults match docker-compose
 ./mvnw spring-boot:run        # Windows: mvnw.cmd spring-boot:run
 ```
 
+**Or run it in Docker** (from the repository root). The image is built from this folder's [Dockerfile](Dockerfile), and the container connects to Postgres over the compose network:
+
+```bash
+docker compose --profile app up -d --build payment-mock
+# host port already in use? PAYMENT_HOST_PORT=18084 docker compose --profile app up -d payment-mock
+```
+
 Check that it is up: `curl http://localhost:8084/health`. Swagger UI is at http://localhost:8084/swagger-ui.html and the spec is exported to [docs/openapi/payment-mock.yaml](../../docs/openapi/payment-mock.yaml).
 
 ## Configuration (environment variables)
@@ -96,3 +103,7 @@ curl -X PUT localhost:8084/api/v1/admin/simulation -H "Content-Type: application
 ./mvnw test                                       # unit + web-layer tests, no database needed
 python ../../scripts/test_payment_idempotency.py  # live checks against the running service + DB
 ```
+
+**Postman:** import [docs/postman/payment-mock.postman_collection.json](../../docs/postman/payment-mock.postman_collection.json), set the `base_url` collection variable to the service's address, and run the folders in order (or the whole collection in the Collection Runner). Every request has assertions. The same collection runs from the command line with `npx newman run docs/postman/payment-mock.postman_collection.json`.
+
+The `payment-mock` GitHub Actions workflow runs `./mvnw test` and builds the Docker image on every push or pull request that touches this folder. The latest local test run is saved in [evidence/tests/payment-mock-unit-tests.txt](../../evidence/tests/payment-mock-unit-tests.txt).

@@ -19,5 +19,23 @@ services:
       timeout: 3s
       retries: 10
 
+  # Application services are behind the "app" profile, so a plain `docker compose up -d`
+  # starts only PostgreSQL. Run them in containers with: docker compose --profile app up -d --build
+  payment-mock:
+    profiles: ["app"]
+    build: ./services/payment-mock
+    container_name: etb-payment-mock
+    environment:
+      PORT: 8084
+      DB_URL: jdbc:postgresql://postgres:5432/payment_db
+      DB_USERNAME: payment_user
+      DB_PASSWORD: payment_pass
+      PAYMENT_MODE: ${PAYMENT_MODE:-SUCCESS}
+    ports:
+      - "${PAYMENT_HOST_PORT:-8084}:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   etb-postgres-data:

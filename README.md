@@ -34,6 +34,12 @@ cd services/payment-mock && ./mvnw spring-boot:run      # Windows: mvnw.cmd spri
 curl http://localhost:8084/health
 ```
 
+**Run services in Docker instead:** services that have a Dockerfile are listed in `docker-compose.yml` under the `app` profile, so `docker compose up -d` alone still starts only PostgreSQL.
+
+```bash
+docker compose --profile app up -d --build
+```
+
 PostgreSQL is exposed on host port **5433** so it does not clash with a local install. Change it with `POSTGRES_HOST_PORT`.
 
 | Database | User / password |
@@ -93,7 +99,8 @@ Evidence for each challenge is in [evidence/](evidence/), with a README per fold
 ```
 docker-compose.yml   PostgreSQL with one database per service
 infra/postgres/      database and user creation script
-services/<name>/     source, tests, pom.xml, Maven wrapper, .env.example
+services/<name>/     source, tests, pom.xml, Maven wrapper, .env.example, Dockerfile
+.github/workflows/   CI per service (tests + Docker image build)
 scripts/             end-to-end and challenge scripts
 docs/                OpenAPI specs, diagrams, report
 evidence/            challenge-1-concurrency/, challenge-2-idempotency/, challenge-3c-saga/
