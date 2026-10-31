@@ -105,6 +105,25 @@ Each service README maps its rules to code and tests.
 
 Evidence for each challenge is in [evidence/](evidence/), with a README per folder linking each file to a claim.
 
+### Integration test run (records all evidence)
+
+Confirmed bookings keep their seats, so the 5 General Admission seats run out after a few runs. The integration runner resets inventory to full capacity before every scenario, so the scenarios are independent and repeatable. The reset ([scripts/reset_test_inventory.py](scripts/reset_test_inventory.py)) is **test only**: it clears `inventory_db` directly and is not part of any service.
+
+```bash
+# 1. Start PostgreSQL, then each service with its output saved to logs/ (the runner copies these lines into evidence/)
+docker compose up -d
+mkdir -p logs
+cd services/event-catalog && ./mvnw spring-boot:run > ../../logs/event-catalog.log 2>&1
+cd services/inventory     && ./mvnw spring-boot:run > ../../logs/inventory.log 2>&1
+cd services/payment-mock  && ./mvnw spring-boot:run > ../../logs/payment-mock.log 2>&1
+cd services/booking       && ./mvnw spring-boot:run > ../../logs/booking.log 2>&1
+
+# 2. Run every scenario and record evidence
+python scripts/run_integration_tests.py
+```
+
+For each scenario it writes `script-output.txt`, `db-state.txt` and the matching `<service>-service-log.jsonl` lines into that scenario's evidence folder, plus [evidence/integration-run-summary.txt](evidence/integration-run-summary.txt). To reset seats by hand before running a single script: `python scripts/reset_test_inventory.py --yes`.
+
 ## Repository layout
 
 ```
@@ -114,5 +133,5 @@ services/<name>/     source, tests, pom.xml, Maven wrapper, .env.example, Docker
 .github/workflows/   CI per service (tests + Docker image build)
 scripts/             end-to-end and challenge scripts
 docs/                OpenAPI specs, diagrams, report
-evidence/            challenge-1-concurrency/, challenge-2-idempotency/, challenge-3c-saga/
+evidence/            challenge-1-concurrency/, challenge-2-idempotency/, challenge-3c-saga/, tests/
 ```
