@@ -1,0 +1,2516 @@
+{
+  "info": {
+    "name": "Event Ticket Booking - All Services",
+    "description": "End-to-end and per-service checks for Catalog (8081), Inventory (8082), Booking (8083) and Payment (8084). Run the folders in order, or the whole collection in the Collection Runner. A full run uses 1 General Admission seat (the confirmed booking); reset with `python scripts/reset_test_inventory.py --yes`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "catalog_url",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "inventory_url",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "booking_url",
+      "value": "http://localhost:8083"
+    },
+    {
+      "key": "payment_url",
+      "value": "http://localhost:8084"
+    },
+    {
+      "key": "event_id",
+      "value": "10000000-0000-0000-0000-000000000001"
+    },
+    {
+      "key": "general_ticket_id",
+      "value": "20000000-0000-0000-0000-000000000001"
+    },
+    {
+      "key": "correlation_id",
+      "value": "postman-demo-1"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Health check (all services)",
+      "item": [
+        {
+          "name": "Catalog /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{catalog_url}}/health",
+              "host": [
+                "{{catalog_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"event-catalog and its database are UP\", () => { const b = pm.response.json(); pm.expect(b.service).to.eql(\"event-catalog\"); pm.expect(b.status).to.eql(\"UP\"); pm.expect(b.database).to.eql(\"UP\"); });",
+                  "pm.test(\"correlation id echoed\", () => pm.expect(pm.response.headers.get(\"X-Correlation-Id\")).to.eql(pm.collectionVariables.get(\"correlation_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventory /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/health",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"inventory and its database are UP\", () => { const b = pm.response.json(); pm.expect(b.service).to.eql(\"inventory\"); pm.expect(b.status).to.eql(\"UP\"); pm.expect(b.database).to.eql(\"UP\"); });",
+                  "pm.test(\"correlation id echoed\", () => pm.expect(pm.response.headers.get(\"X-Correlation-Id\")).to.eql(pm.collectionVariables.get(\"correlation_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Booking /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/health",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"booking and its database are UP\", () => { const b = pm.response.json(); pm.expect(b.service).to.eql(\"booking\"); pm.expect(b.status).to.eql(\"UP\"); pm.expect(b.database).to.eql(\"UP\"); });",
+                  "pm.test(\"correlation id echoed\", () => pm.expect(pm.response.headers.get(\"X-Correlation-Id\")).to.eql(pm.collectionVariables.get(\"correlation_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/health",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"payment-mock and its database are UP\", () => { const b = pm.response.json(); pm.expect(b.service).to.eql(\"payment-mock\"); pm.expect(b.status).to.eql(\"UP\"); pm.expect(b.database).to.eql(\"UP\"); });",
+                  "pm.test(\"correlation id echoed\", () => pm.expect(pm.response.headers.get(\"X-Correlation-Id\")).to.eql(pm.collectionVariables.get(\"correlation_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment simulation: set SUCCESS",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/admin/simulation",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "simulation"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"SUCCESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"mode = SUCCESS\", () => pm.expect(pm.response.json().mode).to.eql(\"SUCCESS\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Catalog",
+      "item": [
+        {
+          "name": "List published events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{catalog_url}}/api/v1/events",
+              "host": [
+                "{{catalog_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "events"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"at least one event\", () => pm.expect(pm.response.json().length).to.be.at.least(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get event with ticket types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{catalog_url}}/api/v1/events/{{event_id}}",
+              "host": [
+                "{{catalog_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "events",
+                "{{event_id}}"
+              ]
+            },
+            "description": "Booking calls this to validate the event and read the ticket price (BR6)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"published\", () => pm.expect(pm.response.json().published).to.eql(true));",
+                  "pm.test(\"General Admission and VIP listed\", () => pm.expect(pm.response.json().ticket_types.length).to.eql(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown event -> 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{catalog_url}}/api/v1/events/99999999-0000-0000-0000-000000000000",
+              "host": [
+                "{{catalog_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "events",
+                "99999999-0000-0000-0000-000000000000"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"error code EVENT_NOT_FOUND\", () => pm.expect(pm.response.json().code).to.eql(\"EVENT_NOT_FOUND\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Inventory (reserve, replay, release, capacity)",
+      "item": [
+        {
+          "name": "Inventory for General Admission",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"avail_before_inv\", pm.response.json().available_quantity);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reserve 1 seat (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{res_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations"
+              ]
+            },
+            "description": "Atomic conditional UPDATE takes the seat (BR1). Booking normally makes this call.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{res_booking_id}}\",\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"res_booking_id\", \"pm-res-\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  "pm.collectionVariables.set(\"res_key\", \"reserve-\" + pm.collectionVariables.get(\"res_booking_id\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"status = RESERVED\", () => pm.expect(pm.response.json().status).to.eql(\"RESERVED\"));",
+                  "pm.test(\"Idempotent-Replay: false\", () => pm.expect(pm.response.headers.get(\"Idempotent-Replay\")).to.eql(\"false\"));",
+                  "pm.collectionVariables.set(\"reservation_id\", pm.response.json().reservation_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Same key + same body -> replay (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{res_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{res_booking_id}}\",\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Idempotent-Replay: true\", () => pm.expect(pm.response.headers.get(\"Idempotent-Replay\")).to.eql(\"true\"));",
+                  "pm.test(\"reservation_id matches saved reservation_id\", () => pm.expect(pm.response.json().reservation_id).to.eql(pm.collectionVariables.get(\"reservation_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Same key + different body -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{res_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{res_booking_id}}\",\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"error code IDEMPOTENCY_KEY_REUSED\", () => pm.expect(pm.response.json().code).to.eql(\"IDEMPOTENCY_KEY_REUSED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventory dropped by 1",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"available_quantity = avail_before_inv -1\", () => pm.expect(pm.response.json().available_quantity).to.eql(Number(pm.collectionVariables.get(\"avail_before_inv\")) + (-1)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get reservation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations/{{reservation_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                "{{reservation_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = RESERVED\", () => pm.expect(pm.response.json().status).to.eql(\"RESERVED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Release reservation (compensation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations/{{reservation_id}}/release",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                "{{reservation_id}}",
+                "release"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = RELEASED\", () => pm.expect(pm.response.json().status).to.eql(\"RELEASED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Release again -> still 200, no double restore",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations/{{reservation_id}}/release",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                "{{reservation_id}}",
+                "release"
+              ]
+            },
+            "description": "BR5: repeated compensation is harmless."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = RELEASED\", () => pm.expect(pm.response.json().status).to.eql(\"RELEASED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventory back to start (restored once)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"available_quantity = avail_before_inv\", () => pm.expect(pm.response.json().available_quantity).to.eql(Number(pm.collectionVariables.get(\"avail_before_inv\")) + (0)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirm a released reservation -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations/{{reservation_id}}/confirm",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                "{{reservation_id}}",
+                "confirm"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"error code RESERVATION_ALREADY_RELEASED\", () => pm.expect(pm.response.json().code).to.eql(\"RESERVATION_ALREADY_RELEASED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "More seats than capacity -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{res_key}}-big"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{res_booking_id}}\",\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"res_booking_id\", \"pm-res-big-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"error code INSUFFICIENT_INVENTORY\", () => pm.expect(pm.response.json().code).to.eql(\"INSUFFICIENT_INVENTORY\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Missing Idempotency-Key -> 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{res_booking_id}}\",\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error code MISSING_IDEMPOTENCY_KEY\", () => pm.expect(pm.response.json().code).to.eql(\"MISSING_IDEMPOTENCY_KEY\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown reservation -> 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"error code RESERVATION_NOT_FOUND\", () => pm.expect(pm.response.json().code).to.eql(\"RESERVATION_NOT_FOUND\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Booking happy path (main transaction)",
+      "item": [
+        {
+          "name": "Inventory before booking",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"avail_before\", pm.response.json().available_quantity);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create booking -> CONFIRMED (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{booking_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "Main transaction: Catalog validate -> Inventory reserve -> Payment charge -> Inventory confirm.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"booking_key\", \"pm-book-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"status = CONFIRMED\", () => pm.expect(pm.response.json().status).to.eql(\"CONFIRMED\"));",
+                  "pm.test(\"Idempotent-Replay: false\", () => pm.expect(pm.response.headers.get(\"Idempotent-Replay\")).to.eql(\"false\"));",
+                  "pm.test(\"total = 1 x 500.00\", () => pm.expect(pm.response.json().total_amount).to.eql(500));",
+                  "pm.collectionVariables.set(\"booking_id\", pm.response.json().booking_id);",
+                  "pm.collectionVariables.set(\"booking_reservation_id\", pm.response.json().reservation_id);",
+                  "pm.collectionVariables.set(\"booking_payment_id\", pm.response.json().payment_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Same key + same body -> replay (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{booking_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "BR2: no second booking, reservation or charge.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Idempotent-Replay: true\", () => pm.expect(pm.response.headers.get(\"Idempotent-Replay\")).to.eql(\"true\"));",
+                  "pm.test(\"booking_id matches saved booking_id\", () => pm.expect(pm.response.json().booking_id).to.eql(pm.collectionVariables.get(\"booking_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Same key + different body -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{booking_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "BR3.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 2,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"error code IDEMPOTENCY_KEY_REUSED\", () => pm.expect(pm.response.json().code).to.eql(\"IDEMPOTENCY_KEY_REUSED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get booking",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings/{{booking_id}}",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{booking_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = CONFIRMED\", () => pm.expect(pm.response.json().status).to.eql(\"CONFIRMED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Its reservation is CONFIRMED (Inventory)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations/{{booking_reservation_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                "{{booking_reservation_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = CONFIRMED\", () => pm.expect(pm.response.json().status).to.eql(\"CONFIRMED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Its payment SUCCEEDED (Payment)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments/{{booking_payment_id}}",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "{{booking_payment_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = SUCCEEDED\", () => pm.expect(pm.response.json().status).to.eql(\"SUCCEEDED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventory dropped by exactly 1",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"available_quantity = avail_before -1\", () => pm.expect(pm.response.json().available_quantity).to.eql(Number(pm.collectionVariables.get(\"avail_before\")) + (-1)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Saga 3C: payment fails, reservation compensated",
+      "item": [
+        {
+          "name": "Payment simulation: set FAIL",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/admin/simulation",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "simulation"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"FAIL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"mode = FAIL\", () => pm.expect(pm.response.json().mode).to.eql(\"FAIL\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventory before failing booking",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"avail_before_saga\", pm.response.json().available_quantity);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create booking while payment declines -> FAILED (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{saga_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "Step 3 fails, so Booking releases the step-2 reservation and ends FAILED (BR4, BR5).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"saga_key\", \"pm-saga-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"status = FAILED\", () => pm.expect(pm.response.json().status).to.eql(\"FAILED\"));",
+                  "pm.test(\"failure_reason is the decline\", () => pm.expect(pm.response.json().failure_reason).to.include(\"CARD_DECLINED\"));",
+                  "pm.collectionVariables.set(\"saga_booking_id\", pm.response.json().booking_id);",
+                  "pm.collectionVariables.set(\"saga_reservation_id\", pm.response.json().reservation_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reservation was released (Inventory)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/reservations/{{saga_reservation_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reservations",
+                "{{saga_reservation_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = RELEASED\", () => pm.expect(pm.response.json().status).to.eql(\"RELEASED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventory unchanged after compensation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"available_quantity = avail_before_saga\", () => pm.expect(pm.response.json().available_quantity).to.eql(Number(pm.collectionVariables.get(\"avail_before_saga\")) + (0)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run compensation again (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings/{{saga_booking_id}}/compensate",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{saga_booking_id}}",
+                "compensate"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = FAILED\", () => pm.expect(pm.response.json().status).to.eql(\"FAILED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventory still unchanged (not restored twice)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{inventory_url}}/api/v1/inventory/{{general_ticket_id}}",
+              "host": [
+                "{{inventory_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "{{general_ticket_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"available_quantity = avail_before_saga\", () => pm.expect(pm.response.json().available_quantity).to.eql(Number(pm.collectionVariables.get(\"avail_before_saga\")) + (0)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment simulation: set SUCCESS",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/admin/simulation",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "simulation"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"SUCCESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"mode = SUCCESS\", () => pm.expect(pm.response.json().mode).to.eql(\"SUCCESS\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Booking validation and errors",
+      "item": [
+        {
+          "name": "Missing Idempotency-Key -> 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error code MISSING_IDEMPOTENCY_KEY\", () => pm.expect(pm.response.json().code).to.eql(\"MISSING_IDEMPOTENCY_KEY\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown event -> 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-bad-{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "BR6.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"99999999-0000-0000-0000-000000000000\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 1,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error code EVENT_NOT_FOUND\", () => pm.expect(pm.response.json().code).to.eql(\"EVENT_NOT_FOUND\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ticket type not in event -> 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-bad-{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "BR6.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"99999999-0000-0000-0000-000000000000\",\n  \"quantity\": 1,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error code TICKET_TYPE_NOT_FOUND\", () => pm.expect(pm.response.json().code).to.eql(\"TICKET_TYPE_NOT_FOUND\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "More seats than available -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-big-{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "BR1 through the whole flow.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"ticket_type_id\": \"{{general_ticket_id}}\",\n  \"quantity\": 100,\n  \"customer_email\": \"postman@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"error code INSUFFICIENT_INVENTORY\", () => pm.expect(pm.response.json().code).to.eql(\"INSUFFICIENT_INVENTORY\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid body -> 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "pm-bad-{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": null,\n  \"ticket_type_id\": null,\n  \"quantity\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error code VALIDATION_FAILED\", () => pm.expect(pm.response.json().code).to.eql(\"VALIDATION_FAILED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown booking -> 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{booking_url}}/api/v1/bookings/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{booking_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"error code BOOKING_NOT_FOUND\", () => pm.expect(pm.response.json().code).to.eql(\"BOOKING_NOT_FOUND\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Payment (direct)",
+      "item": [
+        {
+          "name": "Get simulation mode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/admin/simulation",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "simulation"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Direct payment (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{pay_booking_id}}\",\n  \"amount\": 1500.00,\n  \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"pay_booking_id\", \"pm-pay-\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  "pm.collectionVariables.set(\"pay_key\", \"pay-\" + pm.collectionVariables.get(\"pay_booking_id\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"status = SUCCEEDED\", () => pm.expect(pm.response.json().status).to.eql(\"SUCCEEDED\"));",
+                  "pm.test(\"Idempotent-Replay: false\", () => pm.expect(pm.response.headers.get(\"Idempotent-Replay\")).to.eql(\"false\"));",
+                  "pm.collectionVariables.set(\"payment_id\", pm.response.json().payment_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Same key + same body -> replay (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            },
+            "description": "BR7: no second charge.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{pay_booking_id}}\",\n  \"amount\": 1500.00,\n  \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Idempotent-Replay: true\", () => pm.expect(pm.response.headers.get(\"Idempotent-Replay\")).to.eql(\"true\"));",
+                  "pm.test(\"payment_id matches saved payment_id\", () => pm.expect(pm.response.json().payment_id).to.eql(pm.collectionVariables.get(\"payment_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Same key + different body -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            },
+            "description": "BR8.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{pay_booking_id}}\",\n  \"amount\": 9999.00,\n  \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"error code IDEMPOTENCY_KEY_REUSED\", () => pm.expect(pm.response.json().code).to.eql(\"IDEMPOTENCY_KEY_REUSED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "New key, already-paid booking -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "other-{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            },
+            "description": "BR9.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{pay_booking_id}}\",\n  \"amount\": 1500.00,\n  \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"error code BOOKING_ALREADY_PAID\", () => pm.expect(pm.response.json().code).to.eql(\"BOOKING_ALREADY_PAID\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get payment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments/{{payment_id}}",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "{{payment_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"payment_id matches saved payment_id\", () => pm.expect(pm.response.json().payment_id).to.eql(pm.collectionVariables.get(\"payment_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment simulation: set SLOW",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/admin/simulation",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "simulation"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"SLOW\",\n  \"delay_ms\": 3000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"mode = SLOW\", () => pm.expect(pm.response.json().mode).to.eql(\"SLOW\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Slow gateway (~3 s)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{pay_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"{{pay_booking_id}}\",\n  \"amount\": 1500.00,\n  \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"pay_booking_id\", \"pm-slow-\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  "pm.collectionVariables.set(\"pay_key\", \"pay-\" + pm.collectionVariables.get(\"pay_booking_id\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"took at least 3 s\", () => pm.expect(pm.response.responseTime).to.be.at.least(3000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment simulation: set SUCCESS",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/admin/simulation",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "simulation"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"SUCCESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"mode = SUCCESS\", () => pm.expect(pm.response.json().mode).to.eql(\"SUCCESS\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid body -> 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "bad-{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": \"\",\n  \"amount\": -5,\n  \"currency\": \"inr\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error code VALIDATION_FAILED\", () => pm.expect(pm.response.json().code).to.eql(\"VALIDATION_FAILED\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown payment -> 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "{{correlation_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{payment_url}}/api/v1/payments/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{payment_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"error code PAYMENT_NOT_FOUND\", () => pm.expect(pm.response.json().code).to.eql(\"PAYMENT_NOT_FOUND\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

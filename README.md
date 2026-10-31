@@ -75,6 +75,8 @@ PostgreSQL is exposed on host port **5433** so it does not clash with a local in
 
 OpenAPI specs are exported to [docs/openapi/](docs/openapi/). Each running service also serves Swagger UI at `/swagger-ui.html`.
 
+**Postman:** import [docs/postman/event-ticket-booking.postman_collection.json](docs/postman/event-ticket-booking.postman_collection.json) for every endpoint of all four services, with assertions on each request. Run the folders in order (health, catalog, inventory, booking happy path, saga failure, booking errors, payment) or the whole collection in the Collection Runner. From the command line: `npx newman run docs/postman/event-ticket-booking.postman_collection.json`.
+
 ## Business rules
 
 | ID | Rule | Owner |
