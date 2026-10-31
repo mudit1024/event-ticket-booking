@@ -1,0 +1,31 @@
+# Database state after: End-to-end booking (Catalog -> Inventory -> Payment -> CONFIRMED)
+# rows created since 2026-10-31T18:22:50.318129+00:00
+
+## booking_db: booking
+                  id                  |    idempotency_key    |  status   | quantity | total_amount |            reservation_id            |              payment_id              | failure_reason 
+--------------------------------------+-----------------------+-----------+----------+--------------+--------------------------------------+--------------------------------------+----------------
+ 59651a22-ae83-457b-b2e9-8d51006f23da | e2e-book-af1b3e2f0c5c | CONFIRMED |        1 |       500.00 | 2b02956a-b13d-431b-8d04-cb45878570ef | 1acfdd36-f53d-431a-a34a-87d16a02832b | 
+(1 row)
+
+
+## inventory_db: inventory
+                  id                  |              booking_id              | quantity |  status   
+--------------------------------------+--------------------------------------+----------+-----------
+ 2b02956a-b13d-431b-8d04-cb45878570ef | 59651a22-ae83-457b-b2e9-8d51006f23da |        1 | CONFIRMED
+(1 row)
+
+
+## inventory_db: inventory-capacity
+            ticket_type_id            | total_capacity | available_quantity 
+--------------------------------------+----------------+--------------------
+ 20000000-0000-0000-0000-000000000001 |              5 |                  4
+ 20000000-0000-0000-0000-000000000002 |              2 |                  2
+(2 rows)
+
+
+## payment_db: payment
+                  id                  |              booking_id              |             idempotency_key              |  status   | amount | failure_reason 
+--------------------------------------+--------------------------------------+------------------------------------------+-----------+--------+----------------
+ 1acfdd36-f53d-431a-a34a-87d16a02832b | 59651a22-ae83-457b-b2e9-8d51006f23da | pay-59651a22-ae83-457b-b2e9-8d51006f23da | SUCCEEDED | 500.00 | 
+(1 row)
+

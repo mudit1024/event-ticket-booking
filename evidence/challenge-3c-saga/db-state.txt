@@ -1,0 +1,31 @@
+# Database state after: Challenge 3C: saga compensation on forced payment failure
+# rows created since 2026-10-31T18:22:56.298544+00:00
+
+## booking_db: booking
+                  id                  |   idempotency_key    | status | quantity | total_amount |            reservation_id            |              payment_id              |                failure_reason                
+--------------------------------------+----------------------+--------+----------+--------------+--------------------------------------+--------------------------------------+----------------------------------------------
+ 31860ed6-9012-41dd-87e2-3bf9e788ccbd | saga-fail-f27546a11e | FAILED |        1 |       500.00 | cd2539d9-5fd6-4e34-8e5f-d9ed890dfb04 | 361191a2-6ef1-4462-9762-c3858efeaade | CARD_DECLINED: simulated decline (mode=FAIL)
+(1 row)
+
+
+## inventory_db: inventory
+                  id                  |              booking_id              | quantity |  status  
+--------------------------------------+--------------------------------------+----------+----------
+ cd2539d9-5fd6-4e34-8e5f-d9ed890dfb04 | 31860ed6-9012-41dd-87e2-3bf9e788ccbd |        1 | RELEASED
+(1 row)
+
+
+## inventory_db: inventory-capacity
+            ticket_type_id            | total_capacity | available_quantity 
+--------------------------------------+----------------+--------------------
+ 20000000-0000-0000-0000-000000000001 |              5 |                  5
+ 20000000-0000-0000-0000-000000000002 |              2 |                  2
+(2 rows)
+
+
+## payment_db: payment
+                  id                  |              booking_id              |             idempotency_key              | status | amount |                failure_reason                
+--------------------------------------+--------------------------------------+------------------------------------------+--------+--------+----------------------------------------------
+ 361191a2-6ef1-4462-9762-c3858efeaade | 31860ed6-9012-41dd-87e2-3bf9e788ccbd | pay-31860ed6-9012-41dd-87e2-3bf9e788ccbd | FAILED | 500.00 | CARD_DECLINED: simulated decline (mode=FAIL)
+(1 row)
+

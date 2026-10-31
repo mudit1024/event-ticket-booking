@@ -1,0 +1,31 @@
+# Challenge 1: 20 parallel reservations for capacity 5
+# command: python scripts/test_inventory_concurrency.py
+# started: 2026-10-31T18:22:48+00:00  finished: 2026-10-31T18:22:49+00:00
+# exit code: 0
+# inventory reset before this run (test only):
+#   ticket_type_id            | total_capacity | available_quantity 
+#   --------------------------------------+----------------+--------------------
+#    20000000-0000-0000-0000-000000000001 |              5 |                  5
+#    20000000-0000-0000-0000-000000000002 |              2 |                  2
+#   (2 rows)
+
+[2026-10-31T23:52:48.807] Run ID=3cfa7037; starting concurrency test against http://localhost:8082; expected fresh capacity=5
+[2026-10-31T23:52:49.089] Requests sent: 20
+[2026-10-31T23:52:49.089] New reservations (201): 5
+[2026-10-31T23:52:49.089] Idempotent replays (200): 0
+[2026-10-31T23:52:49.089] Rejected for insufficient inventory: 15
+[2026-10-31T23:52:49.089] Unexpected responses: 0
+[2026-10-31T23:52:49.089] Final inventory HTTP 200: {"available_quantity": 0, "event_id": "10000000-0000-0000-0000-000000000001", "ticket_type_id": "20000000-0000-0000-0000-000000000001", "total_capacity": 5, "updated_at": "2026-10-31T18:22:48.932520Z"}
+[2026-10-31T23:52:49.276] Final database state (challenge reservations and inventory row):
+  status  | count 
+----------+-------
+ RESERVED |     5
+(1 row)
+
+            ticket_type_id            | total_capacity | available_quantity 
+--------------------------------------+----------------+--------------------
+ 20000000-0000-0000-0000-000000000001 |              5 |                  0
+(1 row)
+
+
+[2026-10-31T23:52:49.276] PASS: concurrent requests never over-allocated inventory.

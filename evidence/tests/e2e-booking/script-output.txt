@@ -1,0 +1,37 @@
+# End-to-end booking (Catalog -> Inventory -> Payment -> CONFIRMED)
+# command: python scripts/e2e_booking.py
+# started: 2026-10-31T18:22:50+00:00  finished: 2026-10-31T18:22:50+00:00
+# exit code: 0
+# inventory reset before this run (test only):
+#   ticket_type_id            | total_capacity | available_quantity 
+#   --------------------------------------+----------------+--------------------
+#    20000000-0000-0000-0000-000000000001 |              5 |                  5
+#    20000000-0000-0000-0000-000000000002 |              2 |                  2
+#   (2 rows)
+
+[2026-10-31T23:52:50.494] === Starting End-to-End Booking Validation ===
+[2026-10-31T23:52:50.580] Service Catalog is UP: {'status': 'UP', 'service': 'event-catalog', 'database': 'UP'}
+[2026-10-31T23:52:50.599] Service Inventory is UP: {'status': 'UP', 'service': 'inventory', 'database': 'UP'}
+[2026-10-31T23:52:50.605] Service Booking is UP: {'status': 'UP', 'service': 'booking', 'database': 'UP'}
+[2026-10-31T23:52:50.631] Service Payment is UP: {'status': 'UP', 'service': 'payment-mock', 'database': 'UP'}
+[2026-10-31T23:52:50.662] Catalog Event verified: 'Scalable Services Demo Night', published=True
+[2026-10-31T23:52:50.670] Initial available inventory for ticket type 20000000-0000-0000-0000-000000000001: 5
+[2026-10-31T23:52:50.671] Dispatching POST /api/v1/bookings with key=e2e-book-af1b3e2f0c5c...
+[2026-10-31T23:52:50.797] Booking Response (HTTP 201): {
+  "booking_id": "59651a22-ae83-457b-b2e9-8d51006f23da",
+  "event_id": "10000000-0000-0000-0000-000000000001",
+  "ticket_type_id": "20000000-0000-0000-0000-000000000001",
+  "quantity": 1,
+  "customer_email": "e2e_user@example.com",
+  "total_amount": 500.0,
+  "currency": "INR",
+  "status": "CONFIRMED",
+  "reservation_id": "2b02956a-b13d-431b-8d04-cb45878570ef",
+  "payment_id": "1acfdd36-f53d-431a-a34a-87d16a02832b",
+  "created_at": "2026-10-31T18:22:50.695700Z",
+  "updated_at": "2026-10-31T18:22:50.788706Z"
+}
+[2026-10-31T23:52:50.798] Booking successfully CONFIRMED! booking_id=59651a22-ae83-457b-b2e9-8d51006f23da, reservation_id=2b02956a-b13d-431b-8d04-cb45878570ef, payment_id=1acfdd36-f53d-431a-a34a-87d16a02832b
+[2026-10-31T23:52:50.805] GET /api/v1/bookings/59651a22-ae83-457b-b2e9-8d51006f23da verified persisted state.
+[2026-10-31T23:52:50.827] Inventory after booking: 4 (was 5)
+[2026-10-31T23:52:50.827] === End-to-End Booking Validation SUCCESS ===

@@ -17,7 +17,7 @@ python scripts/test_payment_idempotency.py
 | Duplicates arriving while the first charge is still processing (SLOW mode, 2 s) wait and replay it | `script-output.txt` – scenario 4 |
 | A second key for an already-paid booking is rejected with 409 `BOOKING_ALREADY_PAID` | `script-output.txt` – scenario 5 |
 | A declined payment is stored as FAILED and replays as FAILED; a new key after a decline can succeed | `script-output.txt` – scenario 6 |
-| Database holds exactly one row per idempotency key | `script-output.txt` – scenario 7 (psql output) |
+| Database holds exactly one row per idempotency key | `script-output.txt` – scenario 7 (psql output), `db-state.txt` |
 | Logs show the replays and the race being resolved, each line carrying the caller's correlation id | `payment-service-log.jsonl` (`idempotent replay`, `concurrent duplicate detected`) |
 
 ## How it works

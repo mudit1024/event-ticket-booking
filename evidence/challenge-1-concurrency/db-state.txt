@@ -1,0 +1,21 @@
+# Database state after: Challenge 1: 20 parallel reservations for capacity 5
+# rows created since 2026-10-31T18:22:48.628235+00:00
+
+## inventory_db: inventory
+                  id                  |                   booking_id                   | quantity |  status  
+--------------------------------------+------------------------------------------------+----------+----------
+ 63cf0491-983b-49d8-92df-b522a2334d37 | conc-3cfa7037-4e469006d4784daeb561e54d4e1080b3 |        1 | RESERVED
+ 5fe9e494-38d8-45a4-8d60-1943d8088baa | conc-3cfa7037-73d0515a692240fd9b208f02527045d1 |        1 | RESERVED
+ 48e760f8-408a-4e4f-95dc-edcf9b75512e | conc-3cfa7037-dcc3053280f54219978d36749e9260df |        1 | RESERVED
+ c4de6720-f705-44a7-b47f-e022dd8ebef9 | conc-3cfa7037-23c7eab0e0d04b1c92ffdeea61bfde96 |        1 | RESERVED
+ 6736ef8d-5e16-491f-8b41-32f1002582f8 | conc-3cfa7037-ed8e7c2137cf4c6dabab146b45dd4997 |        1 | RESERVED
+(5 rows)
+
+
+## inventory_db: inventory-capacity
+            ticket_type_id            | total_capacity | available_quantity 
+--------------------------------------+----------------+--------------------
+ 20000000-0000-0000-0000-000000000001 |              5 |                  0
+ 20000000-0000-0000-0000-000000000002 |              2 |                  2
+(2 rows)
+

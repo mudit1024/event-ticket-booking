@@ -37,3 +37,15 @@ python scripts/test_saga_compensation.py
 ## Traceability & Log Correlation
 
 Every distributed request carries `X-Correlation-Id` across services. When inspecting logs, the entire flow (Catalog GET → Inventory POST reserve → Payment POST pay → Inventory POST release) can be traced under a single correlation ID in the structured JSON logs.
+
+## Recorded run
+
+Recorded by `python scripts/run_integration_tests.py` (inventory reset to full capacity before each scenario).
+
+| File | What it shows |
+|---|---|
+| `script-output.txt` | Forced decline at step 3: booking `FAILED` with `CARD_DECLINED`, inventory back to its initial value, reservation `RELEASED`, repeat compensation leaves inventory unchanged (7/7 checks) |
+| `db-state.txt` | Booking row `FAILED`, reservation `RELEASED`, payment `FAILED`, and `available_quantity` equal to `total_capacity` |
+| `booking-service-log.jsonl` | `payment failed, triggering saga compensation` followed by `releasing reservation (saga compensation)` under one correlation id |
+| `inventory-`, `payment-service-log.jsonl` | The reserve, decline and release calls for the same correlation id |
+| `release-script-output.txt`, `release-db-state.txt`, `release-inventory-service-log.jsonl` | Releasing the same reservation twice restores capacity only once (BR5) |

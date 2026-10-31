@@ -1,41 +1,51 @@
-$ python scripts/test_payment_idempotency.py
-[2026-10-24T16:02:02.510] run id 30dd2378, target http://localhost:8084
-[2026-10-24T16:02:02.613] simulation -> {'mode': 'SUCCESS', 'delay_ms': 2000} (HTTP 200)
-[2026-10-24T16:02:02.664] first : HTTP 201 replay=false body={'payment_id': '30454f13-5afb-49af-a7ea-4ed3ba50a93c', 'booking_id': 'booking-seq-30dd2378', 'amount': 1500.0, 'currency': 'INR', 'status': 'SUCCEEDED', 'created_at': '2026-10-24T10:32:02.631298500Z'}
-[2026-10-24T16:02:02.664] repeat: HTTP 200 replay=true body={'payment_id': '30454f13-5afb-49af-a7ea-4ed3ba50a93c', 'booking_id': 'booking-seq-30dd2378', 'amount': 1500.0, 'currency': 'INR', 'status': 'SUCCEEDED', 'created_at': '2026-10-24T10:32:02.631298500Z'}
-[2026-10-24T16:02:02.665] PASS  sequential: first call creates (201)  
-[2026-10-24T16:02:02.665] PASS  sequential: repeat is a replay (200, Idempotent-Replay=true)  
-[2026-10-24T16:02:02.665] PASS  sequential: same payment id and identical body  
-[2026-10-24T16:02:02.695] different payload: HTTP 409 body={'timestamp': '2026-10-24T10:32:02.694067900Z', 'status': 409, 'error': 'Conflict', 'code': 'IDEMPOTENCY_KEY_REUSED', 'message': 'Idempotency-Key was already used with a different request payload', 'path': '/api/v1/payments', 'correlation_id': 'idem-test-7b395b12'}
-[2026-10-24T16:02:02.695] PASS  conflict: same key + different payload -> 409 IDEMPOTENCY_KEY_REUSED  
-[2026-10-24T16:02:02.853] 20 parallel identical requests -> status counts {200: 19, 201: 1}, distinct payment ids {'5d024849-0502-4d5d-b0ce-25c519743c4a'}
-[2026-10-24T16:02:02.853] PASS  parallel: exactly one 201  
-[2026-10-24T16:02:02.853] PASS  parallel: remaining 19 are 200 replays  
-[2026-10-24T16:02:02.853] PASS  parallel: all responses carry one payment id  
-[2026-10-24T16:02:02.877] simulation -> {'mode': 'SLOW', 'delay_ms': 2000} (HTTP 200)
-[2026-10-24T16:02:04.977] 10 parallel requests in SLOW mode -> status counts {200: 9, 201: 1}, distinct payment ids {'4e8c4209-6c2b-4c5c-badf-da648500a644'}
-[2026-10-24T16:02:04.977] PASS  slow: one charge, duplicates wait and replay it  
-[2026-10-24T16:02:04.999] simulation -> {'mode': 'SUCCESS', 'delay_ms': 2000} (HTTP 200)
-[2026-10-24T16:02:05.025] new key for already-paid booking: HTTP 409 body={'timestamp': '2026-10-24T10:32:05.023931500Z', 'status': 409, 'error': 'Conflict', 'code': 'BOOKING_ALREADY_PAID', 'message': 'Booking booking-seq-30dd2378 already has a payment in progress or completed', 'path': '/api/v1/payments', 'correlation_id': 'idem-test-333db11f'}
-[2026-10-24T16:02:05.025] PASS  booking: second key for paid booking -> 409 BOOKING_ALREADY_PAID  
-[2026-10-24T16:02:05.028] simulation -> {'mode': 'FAIL', 'delay_ms': 2000} (HTTP 200)
-[2026-10-24T16:02:05.062] FAIL mode: HTTP 201 body={'payment_id': '39bd082b-971c-4ab4-8970-6595ecfc88b9', 'booking_id': 'booking-fail-30dd2378', 'amount': 1500.0, 'currency': 'INR', 'status': 'FAILED', 'failure_reason': 'CARD_DECLINED: simulated decline (mode=FAIL)', 'created_at': '2026-10-24T10:32:05.047339600Z'}
-[2026-10-24T16:02:05.062] FAIL replay: HTTP 200 body={'payment_id': '39bd082b-971c-4ab4-8970-6595ecfc88b9', 'booking_id': 'booking-fail-30dd2378', 'amount': 1500.0, 'currency': 'INR', 'status': 'FAILED', 'failure_reason': 'CARD_DECLINED: simulated decline (mode=FAIL)', 'created_at': '2026-10-24T10:32:05.047339600Z'}
-[2026-10-24T16:02:05.062] PASS  decline: recorded as FAILED (201)  
-[2026-10-24T16:02:05.062] PASS  decline: replay returns the same FAILED result  
-[2026-10-24T16:02:05.065] simulation -> {'mode': 'SUCCESS', 'delay_ms': 2000} (HTTP 200)
-[2026-10-24T16:02:05.105] retry with new key after decline: HTTP 201 body={'payment_id': '5e26c6e0-bab6-4391-8b8b-976d850e1cab', 'booking_id': 'booking-fail-30dd2378', 'amount': 1500.0, 'currency': 'INR', 'status': 'SUCCEEDED', 'created_at': '2026-10-24T10:32:05.096281900Z'}
-[2026-10-24T16:02:05.105] PASS  decline: new key after a decline can succeed  
-[2026-10-24T16:02:05.211] database rows per idempotency key:
+# Challenge 2: payment idempotency
+# command: python scripts/test_payment_idempotency.py
+# started: 2026-10-31T18:22:53+00:00  finished: 2026-10-31T18:22:55+00:00
+# exit code: 0
+# inventory reset before this run (test only):
+#   ticket_type_id            | total_capacity | available_quantity 
+#   --------------------------------------+----------------+--------------------
+#    20000000-0000-0000-0000-000000000001 |              5 |                  5
+#    20000000-0000-0000-0000-000000000002 |              2 |                  2
+#   (2 rows)
+
+[2026-10-31T23:52:53.203] run id 7840640b, target http://localhost:8084
+[2026-10-31T23:52:53.275] simulation -> {'mode': 'SUCCESS', 'delay_ms': 2000} (HTTP 200)
+[2026-10-31T23:52:53.354] first : HTTP 201 replay=false body={'payment_id': '073d8150-ca95-43f8-9127-57aa090cf4d6', 'booking_id': 'booking-seq-7840640b', 'amount': 1500.0, 'currency': 'INR', 'status': 'SUCCEEDED', 'created_at': '2026-10-31T18:22:53.307617400Z'}
+[2026-10-31T23:52:53.354] repeat: HTTP 200 replay=true body={'payment_id': '073d8150-ca95-43f8-9127-57aa090cf4d6', 'booking_id': 'booking-seq-7840640b', 'amount': 1500.0, 'currency': 'INR', 'status': 'SUCCEEDED', 'created_at': '2026-10-31T18:22:53.307617400Z'}
+[2026-10-31T23:52:53.354] PASS  sequential: first call creates (201)  
+[2026-10-31T23:52:53.354] PASS  sequential: repeat is a replay (200, Idempotent-Replay=true)  
+[2026-10-31T23:52:53.354] PASS  sequential: same payment id and identical body  
+[2026-10-31T23:52:53.362] different payload: HTTP 409 body={'timestamp': '2026-10-31T18:22:53.361223800Z', 'status': 409, 'error': 'Conflict', 'code': 'IDEMPOTENCY_KEY_REUSED', 'message': 'Idempotency-Key was already used with a different request payload', 'path': '/api/v1/payments', 'correlation_id': 'idem-test-d1905643'}
+[2026-10-31T23:52:53.362] PASS  conflict: same key + different payload -> 409 IDEMPOTENCY_KEY_REUSED  
+[2026-10-31T23:52:53.514] 20 parallel identical requests -> status counts {201: 1, 200: 19}, distinct payment ids {'e8b5c149-188b-4a68-a1b8-d577c282617b'}
+[2026-10-31T23:52:53.514] PASS  parallel: exactly one 201  
+[2026-10-31T23:52:53.514] PASS  parallel: remaining 19 are 200 replays  
+[2026-10-31T23:52:53.514] PASS  parallel: all responses carry one payment id  
+[2026-10-31T23:52:53.536] simulation -> {'mode': 'SLOW', 'delay_ms': 2000} (HTTP 200)
+[2026-10-31T23:52:55.630] 10 parallel requests in SLOW mode -> status counts {200: 9, 201: 1}, distinct payment ids {'39ac387f-5128-41b7-ada1-78d31476b84e'}
+[2026-10-31T23:52:55.630] PASS  slow: one charge, duplicates wait and replay it  
+[2026-10-31T23:52:55.654] simulation -> {'mode': 'SUCCESS', 'delay_ms': 2000} (HTTP 200)
+[2026-10-31T23:52:55.665] new key for already-paid booking: HTTP 409 body={'timestamp': '2026-10-31T18:22:55.663861400Z', 'status': 409, 'error': 'Conflict', 'code': 'BOOKING_ALREADY_PAID', 'message': 'Booking booking-seq-7840640b already has a payment in progress or completed', 'path': '/api/v1/payments', 'correlation_id': 'idem-test-e5f62dee'}
+[2026-10-31T23:52:55.665] PASS  booking: second key for paid booking -> 409 BOOKING_ALREADY_PAID  
+[2026-10-31T23:52:55.685] simulation -> {'mode': 'FAIL', 'delay_ms': 2000} (HTTP 200)
+[2026-10-31T23:52:55.751] FAIL mode: HTTP 201 body={'payment_id': '21147fe9-ea63-41f5-b506-c7ef7c6c88ac', 'booking_id': 'booking-fail-7840640b', 'amount': 1500.0, 'currency': 'INR', 'status': 'FAILED', 'failure_reason': 'CARD_DECLINED: simulated decline (mode=FAIL)', 'created_at': '2026-10-31T18:22:55.707282300Z'}
+[2026-10-31T23:52:55.751] FAIL replay: HTTP 200 body={'payment_id': '21147fe9-ea63-41f5-b506-c7ef7c6c88ac', 'booking_id': 'booking-fail-7840640b', 'amount': 1500.0, 'currency': 'INR', 'status': 'FAILED', 'failure_reason': 'CARD_DECLINED: simulated decline (mode=FAIL)', 'created_at': '2026-10-31T18:22:55.707282300Z'}
+[2026-10-31T23:52:55.751] PASS  decline: recorded as FAILED (201)  
+[2026-10-31T23:52:55.751] PASS  decline: replay returns the same FAILED result  
+[2026-10-31T23:52:55.779] simulation -> {'mode': 'SUCCESS', 'delay_ms': 2000} (HTTP 200)
+[2026-10-31T23:52:55.832] retry with new key after decline: HTTP 201 body={'payment_id': '1b0861fb-e261-4900-9864-752c8d8c5c53', 'booking_id': 'booking-fail-7840640b', 'amount': 1500.0, 'currency': 'INR', 'status': 'SUCCEEDED', 'created_at': '2026-10-31T18:22:55.811656700Z'}
+[2026-10-31T23:52:55.832] PASS  decline: new key after a decline can succeed  
+[2026-10-31T23:52:55.941] database rows per idempotency key:
    idempotency_key   | count |    min    
 ---------------------+-------+-----------
- fail-30dd2378       |     1 | FAILED
- fail-retry-30dd2378 |     1 | SUCCEEDED
- par-30dd2378        |     1 | SUCCEEDED
- seq-30dd2378        |     1 | SUCCEEDED
- slow-30dd2378       |     1 | SUCCEEDED
+ fail-7840640b       |     1 | FAILED
+ fail-retry-7840640b |     1 | SUCCEEDED
+ par-7840640b        |     1 | SUCCEEDED
+ seq-7840640b        |     1 | SUCCEEDED
+ slow-7840640b       |     1 | SUCCEEDED
 (5 rows)
 
 
-[2026-10-24T16:02:05.211] PASS  database: exactly one row per idempotency key  5 keys
-[2026-10-24T16:02:05.211] SUMMARY: 13/13 checks passed
+[2026-10-31T23:52:55.941] PASS  database: exactly one row per idempotency key  5 keys
+[2026-10-31T23:52:55.941] SUMMARY: 13/13 checks passed

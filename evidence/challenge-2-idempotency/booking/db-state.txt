@@ -1,0 +1,42 @@
+# Database state after: Challenge 2: booking idempotency
+# rows created since 2026-10-31T18:22:51.577163+00:00
+
+## booking_db: booking
+                  id                  |    idempotency_key    |  status   | quantity | total_amount |            reservation_id            |              payment_id              | failure_reason 
+--------------------------------------+-----------------------+-----------+----------+--------------+--------------------------------------+--------------------------------------+----------------
+ 92a752ef-ab57-41b9-a267-726a9d3804ba | book-seq-7ebb1e7dda   | CONFIRMED |        1 |       500.00 | afb5f070-2588-4e80-a641-0e7f17bac1eb | a4f82796-7be8-47ac-b037-7371514f16a5 | 
+ 70a109f9-1b18-4a1b-9b90-da91e6834563 | book-simul-787ffc5740 | CONFIRMED |        1 |       500.00 | df92f868-6516-4e1f-8b01-55b771014483 | 20329fa1-69af-45e7-bba7-ee6bbdc8cbb3 | 
+(2 rows)
+
+
+## booking_db: booking-per-key
+    idempotency_key    | rows 
+-----------------------+------
+ book-seq-7ebb1e7dda   |    1
+ book-simul-787ffc5740 |    1
+(2 rows)
+
+
+## inventory_db: inventory
+                  id                  |              booking_id              | quantity |  status   
+--------------------------------------+--------------------------------------+----------+-----------
+ afb5f070-2588-4e80-a641-0e7f17bac1eb | 92a752ef-ab57-41b9-a267-726a9d3804ba |        1 | CONFIRMED
+ df92f868-6516-4e1f-8b01-55b771014483 | 70a109f9-1b18-4a1b-9b90-da91e6834563 |        1 | CONFIRMED
+(2 rows)
+
+
+## inventory_db: inventory-capacity
+            ticket_type_id            | total_capacity | available_quantity 
+--------------------------------------+----------------+--------------------
+ 20000000-0000-0000-0000-000000000001 |              5 |                  3
+ 20000000-0000-0000-0000-000000000002 |              2 |                  2
+(2 rows)
+
+
+## payment_db: payment
+                  id                  |              booking_id              |             idempotency_key              |  status   | amount | failure_reason 
+--------------------------------------+--------------------------------------+------------------------------------------+-----------+--------+----------------
+ a4f82796-7be8-47ac-b037-7371514f16a5 | 92a752ef-ab57-41b9-a267-726a9d3804ba | pay-92a752ef-ab57-41b9-a267-726a9d3804ba | SUCCEEDED | 500.00 | 
+ 20329fa1-69af-45e7-bba7-ee6bbdc8cbb3 | 70a109f9-1b18-4a1b-9b90-da91e6834563 | pay-70a109f9-1b18-4a1b-9b90-da91e6834563 | SUCCEEDED | 500.00 | 
+(2 rows)
+

@@ -1,0 +1,10 @@
+Integration test run 2026-10-31T18:22:48+00:00
+
+PASS  Challenge 1: 20 parallel reservations for capacity 5  -> evidence/challenge-1-concurrency/
+PASS  End-to-end booking (Catalog -> Inventory -> Payment -> CONFIRMED)  -> evidence/tests/e2e-booking/
+PASS  Challenge 2: booking idempotency  -> evidence/challenge-2-idempotency/booking/
+PASS  Challenge 2: payment idempotency  -> evidence/challenge-2-idempotency/payment/
+PASS  Challenge 3C: saga compensation on forced payment failure  -> evidence/challenge-3c-saga/
+PASS  Challenge 3C: repeated release restores capacity once  -> evidence/challenge-3c-saga/
+
+6/6 scenarios passed

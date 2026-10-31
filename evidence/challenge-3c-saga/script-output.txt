@@ -1,0 +1,46 @@
+# Challenge 3C: saga compensation on forced payment failure
+# command: python scripts/test_saga_compensation.py
+# started: 2026-10-31T18:22:56+00:00  finished: 2026-10-31T18:22:56+00:00
+# exit code: 0
+# inventory reset before this run (test only):
+#   ticket_type_id            | total_capacity | available_quantity 
+#   --------------------------------------+----------------+--------------------
+#    20000000-0000-0000-0000-000000000001 |              5 |                  5
+#    20000000-0000-0000-0000-000000000002 |              2 |                  2
+#   (2 rows)
+
+[2026-10-31T23:52:56.398] === Starting Challenge 3C: Saga Orchestration & Compensation Validation ===
+[2026-10-31T23:52:56.467] Service Inventory is UP: {'status': 'UP', 'service': 'inventory', 'database': 'UP'}
+[2026-10-31T23:52:56.492] Service Booking is UP: {'status': 'UP', 'service': 'booking', 'database': 'UP'}
+[2026-10-31T23:52:56.524] Service Payment is UP: {'status': 'UP', 'service': 'payment-mock', 'database': 'UP'}
+[2026-10-31T23:52:56.554] Initial available inventory: 5
+[2026-10-31T23:52:56.558] Payment gateway simulation mode switched to: FAIL
+[2026-10-31T23:52:56.558] Triggering booking with key saga-fail-f27546a11e while payment mode is FAIL...
+[2026-10-31T23:52:56.662] Booking response: status_code=201, body={
+  "booking_id": "31860ed6-9012-41dd-87e2-3bf9e788ccbd",
+  "event_id": "10000000-0000-0000-0000-000000000001",
+  "ticket_type_id": "20000000-0000-0000-0000-000000000001",
+  "quantity": 1,
+  "customer_email": "saga_test@example.com",
+  "total_amount": 500.0,
+  "currency": "INR",
+  "status": "FAILED",
+  "reservation_id": "cd2539d9-5fd6-4e34-8e5f-d9ed890dfb04",
+  "payment_id": "361191a2-6ef1-4462-9762-c3858efeaade",
+  "failure_reason": "CARD_DECLINED: simulated decline (mode=FAIL)",
+  "created_at": "2026-10-31T18:22:56.586215500Z",
+  "updated_at": "2026-10-31T18:22:56.655186800Z"
+}
+[2026-10-31T23:52:56.662] PASS  booking_status_failed  status=FAILED
+[2026-10-31T23:52:56.662] PASS  booking_has_failure_reason  reason=CARD_DECLINED: simulated decline (mode=FAIL)
+[2026-10-31T23:52:56.662] PASS  booking_has_reservation_id  reservation_id=cd2539d9-5fd6-4e34-8e5f-d9ed890dfb04
+[2026-10-31T23:52:56.679] Inventory after saga compensation: 5 (initial: 5)
+[2026-10-31T23:52:56.679] PASS  inventory_restored_to_initial  5 == 5
+[2026-10-31T23:52:56.685] PASS  reservation_status_released  reservation status=RELEASED
+[2026-10-31T23:52:56.685] Testing repeat compensation invocation (BR5 idempotent release)...
+[2026-10-31T23:52:56.699] PASS  repeat_compensation_success  status=200
+[2026-10-31T23:52:56.723] Inventory after repeated compensation: 5 (must still be 5)
+[2026-10-31T23:52:56.723] PASS  repeat_compensation_leaves_inventory_consistent  5 == 5
+[2026-10-31T23:52:56.723] Resetting payment mode to SUCCESS...
+[2026-10-31T23:52:56.729] Payment gateway simulation mode switched to: SUCCESS
+[2026-10-31T23:52:56.729] === SUMMARY: 7 PASSED, 0 FAILED ===

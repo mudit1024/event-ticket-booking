@@ -1,0 +1,32 @@
+# Challenge 2: booking idempotency
+# command: python scripts/test_booking_idempotency.py
+# started: 2026-10-31T18:22:51+00:00  finished: 2026-10-31T18:22:52+00:00
+# exit code: 0
+# inventory reset before this run (test only):
+#   ticket_type_id            | total_capacity | available_quantity 
+#   --------------------------------------+----------------+--------------------
+#    20000000-0000-0000-0000-000000000001 |              5 |                  5
+#    20000000-0000-0000-0000-000000000002 |              2 |                  2
+#   (2 rows)
+
+[2026-10-31T23:52:51.689] === Booking Idempotency Validation (Challenge 2) targeting http://localhost:8083 ===
+[2026-10-31T23:52:51.784] Booking service is UP: {'status': 'UP', 'service': 'booking', 'database': 'UP'}
+[2026-10-31T23:52:51.785] Scenario 1: Sequential duplicate with key book-seq-7ebb1e7dda
+[2026-10-31T23:52:51.890] PASS  sequential_first_call_201  status=201
+[2026-10-31T23:52:51.890] PASS  sequential_first_call_not_replayed  
+[2026-10-31T23:52:51.898] PASS  sequential_second_call_200  status=200
+[2026-10-31T23:52:51.898] PASS  sequential_second_call_replayed  
+[2026-10-31T23:52:51.898] PASS  sequential_same_booking_id  92a752ef-ab57-41b9-a267-726a9d3804ba == 92a752ef-ab57-41b9-a267-726a9d3804ba
+[2026-10-31T23:52:51.898] Scenario 2: Payload conflict with same key book-seq-7ebb1e7dda
+[2026-10-31T23:52:51.922] PASS  payload_conflict_409  status=409
+[2026-10-31T23:52:51.922] PASS  payload_conflict_error_code  code=IDEMPOTENCY_KEY_REUSED
+[2026-10-31T23:52:51.922] Scenario 3: Missing Idempotency-Key header
+[2026-10-31T23:52:51.947] PASS  missing_header_400  status=400
+[2026-10-31T23:52:51.947] PASS  missing_header_code  code=MISSING_IDEMPOTENCY_KEY
+[2026-10-31T23:52:51.947] Scenario 4: Simultaneous duplicate race (20 parallel requests) with key book-simul-787ffc5740
+[2026-10-31T23:52:52.153] Simultaneous duplicate results: status_counts={200: 19, 201: 1}, unique booking_ids=1
+[2026-10-31T23:52:52.153] PASS  simultaneous_exactly_one_201  201 count=1
+[2026-10-31T23:52:52.153] PASS  simultaneous_rest_are_200  200 count=19
+[2026-10-31T23:52:52.153] PASS  simultaneous_single_logical_booking  booking_ids={'70a109f9-1b18-4a1b-9b90-da91e6834563'}
+[2026-10-31T23:52:52.254] PASS  database_single_row  row_count=1
+[2026-10-31T23:52:52.254] === SUMMARY: 13 PASSED, 0 FAILED ===

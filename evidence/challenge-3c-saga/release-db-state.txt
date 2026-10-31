@@ -1,0 +1,17 @@
+# Database state after: Challenge 3C: repeated release restores capacity once
+# rows created since 2026-10-31T18:22:57.507015+00:00
+
+## inventory_db: inventory
+                  id                  |                  booking_id                  | quantity |  status  
+--------------------------------------+----------------------------------------------+----------+----------
+ b4c1cccc-035b-4e36-917b-94288d31527f | release-fad5b5dd-19db-4219-a435-e3ec902c5139 |        1 | RELEASED
+(1 row)
+
+
+## inventory_db: inventory-capacity
+            ticket_type_id            | total_capacity | available_quantity 
+--------------------------------------+----------------+--------------------
+ 20000000-0000-0000-0000-000000000001 |              5 |                  5
+ 20000000-0000-0000-0000-000000000002 |              2 |                  2
+(2 rows)
+

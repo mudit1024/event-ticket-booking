@@ -30,3 +30,14 @@ python scripts/test_booking_idempotency.py
 ## Why Check-Then-Insert in Code Fails
 
 In a high-concurrency distributed environment, two simultaneous requests can both execute `SELECT ... WHERE idempotency_key = ?`, observe no existing record, and both proceed to reserve tickets and charge cards. Only a database-level uniqueness constraint provides true race protection.
+
+## Recorded run
+
+Recorded by `python scripts/run_integration_tests.py` (inventory reset to full capacity before the scenario).
+
+| File | What it shows |
+|---|---|
+| `script-output.txt` | All 13 checks above, with timestamps and the exit code |
+| `db-state.txt` | `booking-per-key`: one row per idempotency key, including the key hit by 20 parallel requests; matching reservation and payment rows |
+| `booking-service-log.jsonl` | `concurrent duplicate detected` and `idempotent replay` lines for the parallel race, and the `IDEMPOTENCY_KEY_REUSED` rejection |
+| `inventory-`, `payment-`, `catalog-service-log.jsonl` | Downstream calls happen once per logical booking, not once per retry |

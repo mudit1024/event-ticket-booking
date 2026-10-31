@@ -1,0 +1,30 @@
+# Challenge 3C: repeated release restores capacity once
+# command: python scripts/test_inventory_release.py
+# started: 2026-10-31T18:22:57+00:00  finished: 2026-10-31T18:22:57+00:00
+# exit code: 0
+# inventory reset before this run (test only):
+#   ticket_type_id            | total_capacity | available_quantity 
+#   --------------------------------------+----------------+--------------------
+#    20000000-0000-0000-0000-000000000001 |              5 |                  5
+#    20000000-0000-0000-0000-000000000002 |              2 |                  2
+#   (2 rows)
+
+[2026-10-31T23:52:57.609] Starting repeated-release check against http://localhost:8082
+[2026-10-31T23:52:57.738] Initial available_quantity: 5
+[2026-10-31T23:52:57.738] After reserve: 4
+[2026-10-31T23:52:57.738] First release: HTTP 200, status=RELEASED
+[2026-10-31T23:52:57.738] Second release: HTTP 200, status=RELEASED
+[2026-10-31T23:52:57.738] After both releases: HTTP 200, available_quantity=5
+[2026-10-31T23:52:57.833] Final database state:
+                  id                  |                  booking_id                  |  status  | quantity 
+--------------------------------------+----------------------------------------------+----------+----------
+ b4c1cccc-035b-4e36-917b-94288d31527f | release-fad5b5dd-19db-4219-a435-e3ec902c5139 | RELEASED |        1
+(1 row)
+
+            ticket_type_id            | total_capacity | available_quantity 
+--------------------------------------+----------------+--------------------
+ 20000000-0000-0000-0000-000000000001 |              5 |                  5
+(1 row)
+
+
+[2026-10-31T23:52:57.833] PASS: reservation_id=b4c1cccc-035b-4e36-917b-94288d31527f; repeated release restored capacity exactly once.

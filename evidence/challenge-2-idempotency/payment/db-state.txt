@@ -1,0 +1,13 @@
+# Database state after: Challenge 2: payment idempotency
+# rows created since 2026-10-31T18:22:53.092684+00:00
+
+## payment_db: payment
+                  id                  |      booking_id       |   idempotency_key   |  status   | amount  |                failure_reason                
+--------------------------------------+-----------------------+---------------------+-----------+---------+----------------------------------------------
+ 073d8150-ca95-43f8-9127-57aa090cf4d6 | booking-seq-7840640b  | seq-7840640b        | SUCCEEDED | 1500.00 | 
+ e8b5c149-188b-4a68-a1b8-d577c282617b | booking-par-7840640b  | par-7840640b        | SUCCEEDED | 1500.00 | 
+ 39ac387f-5128-41b7-ada1-78d31476b84e | booking-slow-7840640b | slow-7840640b       | SUCCEEDED | 1500.00 | 
+ 21147fe9-ea63-41f5-b506-c7ef7c6c88ac | booking-fail-7840640b | fail-7840640b       | FAILED    | 1500.00 | CARD_DECLINED: simulated decline (mode=FAIL)
+ 1b0861fb-e261-4900-9864-752c8d8c5c53 | booking-fail-7840640b | fail-retry-7840640b | SUCCEEDED | 1500.00 | 
+(5 rows)
+
