@@ -40,6 +40,16 @@ curl http://localhost:8083/health
 curl http://localhost:8084/health
 ```
 
+## Product UI
+
+With the four services running, start the included UI server:
+
+```bash
+python3 web/server.py
+```
+
+Open [http://localhost:3000](http://localhost:3000). The UI server proxies browser requests to Catalog (`localhost:8081`), Booking (`localhost:8083`), and Inventory (`localhost:8082`) on the same origin, so backend CORS changes aren’t needed. Booking orchestrates Inventory and Payment. The Reservations section supports lookup by reservation ID or booking ID and releasing an unconfirmed reservation. Inventory does not expose a list-all-reservations endpoint. If backend URLs differ, set `CATALOG_URL`, `BOOKING_URL`, and `INVENTORY_URL` before starting `web/server.py`. Start all four backend services before opening the UI. When starting the UI server on another computer/container, browse to its network hostname; `0.0.0.0` is the bind address, not a browser address.
+
 **Run services in Docker instead:** services that have a Dockerfile are listed in `docker-compose.yml` under the `app` profile, so `docker compose up -d` alone still starts only PostgreSQL.
 
 ```bash
